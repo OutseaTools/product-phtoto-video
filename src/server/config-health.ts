@@ -156,6 +156,10 @@ export function checkConfig(input: ConfigInput): ConfigIssue[] {
   if (vars('TURNSTILE_SITE_KEY')) requireSecrets(['TURNSTILE_SECRET_KEY'], 'Turnstile')
   else warn('TURNSTILE_SITE_KEY', 'TURNSTILE_SITE_KEY 为空：留言和举报表单没有人机校验，只靠限流')
 
+  // Umami 同域代理（可选）：只检查格式
+  const umami = vars('UMAMI_ORIGIN')
+  if (umami && !/^https:\/\/[^/?#\s]+$/.test(umami)) warn('UMAMI_ORIGIN', 'UMAMI_ORIGIN 不是不带路径的 https 地址（如 https://umami.example.com）：Umami 统计无法代理')
+
   // 付款即时通知（可选）：只检查格式，不输出地址（里面带 token）
   const chat = input.secrets.PAYMENT_NOTIFY_WEBHOOK_URL
   if (typeof chat === 'string' && text(chat)) {

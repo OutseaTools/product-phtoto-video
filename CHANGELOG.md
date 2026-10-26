@@ -4,6 +4,17 @@ Notable changes to the template. Derived sites pick them up with `git merge` fro
 
 中文说明在每条下方。
 
+## 2026-10-26
+
+### Added: optional Umami analytics through a same-origin proxy
+
+- **`analytics.umamiWebsiteId`** (`src/config/site.ts`, empty by default): when set, every page loads `/s/script.js` (with `data-website-id`). Umami sets no cookies, so the consent banner does not gate it. The privacy policy adapts (the "no third-party analytics" sentence is dropped, a cookie-free Umami sentence is added, and the service-provider sentence mentions analytics). `new-site.mjs` clears the ID for a new site.
+- **`UMAMI_ORIGIN`** (plain var in `wrangler.jsonc` / `wrangler.staging.jsonc`, empty by default): the Umami instance, an https origin without a path. It is only read by the Worker (`src/server/umami.ts`), never bundled into the frontend, so the instance's domain is not visible in page source or JS. The Worker serves `GET|HEAD /s/script.js` (cached for a day) and `POST /s/api/send`: the body is capped at 16 KB and must be a JSON object with an object `payload`; `CF-Connecting-IP` is written to `payload.ip` so Umami counts country and unique visitors by the real visitor; only `Content-Type`, `User-Agent` and `x-umami-cache` go upstream (never cookies); only status, body and `Content-Type` come back; upstream errors or a 5 s timeout return 502 without the origin. Empty `UMAMI_ORIGIN` gives 404. `npm run doctor` warns when it is not a path-less https origin. CSP is unchanged.
+
+Upgrading a site (only if you want Umami): merge upstream, set `analytics.umamiWebsiteId` in `src/config/site.ts` and `UMAMI_ORIGIN` in `wrangler.jsonc` `vars`, then deploy. No secrets or migrations. The Umami instance must ship the GeoLite2 database (on Vercel set `BUILD_GEO=1` and redeploy): with `payload.ip` set, Umami looks up the country itself and returns 500 without it.
+
+新增：可选的 Umami 统计，经站点自己域名的同域代理接入。`analytics.umamiWebsiteId`（`site.ts`，默认空）填了就在所有页面加载 `/s/script.js`；Umami 不写 Cookie，不受同意横幅控制，隐私政策按配置调整。`UMAMI_ORIGIN`（`wrangler.jsonc` 和 `wrangler.staging.jsonc` 的普通 var，默认空）是实例地址（不带路径的 https origin），只在 Worker（`src/server/umami.ts`）里使用，不进前端 bundle，网页源码和 JS 里看不到实例域名。Worker 提供 `GET|HEAD /s/script.js`（缓存一天）和 `POST /s/api/send`：body 上限 16 KB，必须是带对象 `payload` 的 JSON；把 `CF-Connecting-IP` 写进 `payload.ip`，让 Umami 按真实访客统计国家和独立访客；上游只带 `Content-Type`、`User-Agent`、`x-umami-cache`（绝不带 Cookie），响应只回状态码、body 和 `Content-Type`；上游出错或 5 秒超时返回 502，且不含实例地址。`UMAMI_ORIGIN` 为空时返回 404；格式不对时 `npm run doctor` 警告；CSP 不变。站点升级（想用 Umami 才需要）：合并 upstream 后，在 `src/config/site.ts` 填 `analytics.umamiWebsiteId`，在 `wrangler.jsonc` 的 `vars` 填 `UMAMI_ORIGIN`，部署。没有新增密钥和迁移。Umami 实例要带 GeoLite2 数据库（Vercel 上设 `BUILD_GEO=1` 后重新部署）：带了 `payload.ip` 时 Umami 自己查国家，没有数据库会返回 500。
+
 ## 2026-10-25
 
 ### Added: optional Resend channel for transactional email

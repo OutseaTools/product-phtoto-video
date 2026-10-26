@@ -18,7 +18,7 @@ const THEME_SCRIPT = `(function(){try{var t=localStorage.getItem('theme');if(!t)
 // head 里的脚本由框架带上 CSP nonce（见 src/server/csp.ts），自定义内联脚本都放这里，不要直接写 <script>
 function headScripts() {
   const scripts: Array<Record<string, unknown>> = [{ children: THEME_SCRIPT }]
-  const { ga4Id, cfBeaconToken } = site.analytics
+  const { ga4Id, cfBeaconToken, umamiWebsiteId } = site.analytics
   // GA4 要等访客在同意横幅点“接受”后才加载（见 lib/consent.ts）
   if (ga4Id) scripts.push({ children: ga4BootstrapScript(ga4Id) })
   if (cfBeaconToken) {
@@ -28,6 +28,8 @@ function headScripts() {
       'data-cf-beacon': JSON.stringify({ token: cfBeaconToken }),
     })
   }
+  // Umami 经本站 /s/ 代理（见 server/umami.ts），无 Cookie，不等同意
+  if (umamiWebsiteId) scripts.push({ src: '/s/script.js', defer: true, 'data-website-id': umamiWebsiteId })
   return scripts
 }
 
