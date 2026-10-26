@@ -4,6 +4,17 @@ Notable changes to the template. Derived sites pick them up with `git merge` fro
 
 中文说明在每条下方。
 
+## 2026-10-27
+
+### Changed: article covers get a headline, a tag and layouts
+
+- **`scripts/article-cover.mjs`** now renders the cover as HTML in Playwright's Chromium (already installed for e2e) instead of an ffmpeg filter graph. New options: `--title` (headline), `--tag` (category pill), `--note` (one small line), `--labels "A|B"`, `--accent`, and `--layout`: `row` (1–3 frames fanned, the default), `before-after` (photo → video with an arrow), `vs` (split screen), `hero` (one large frame), `grid` (2–4 frames), `full` (one wide image such as an illustration). The brand name comes from `site.brandName` of the repo you run it in. Without `--title` it only lays out the frames. ffmpeg is still needed to grab video frames.
+- The template's sample cover is regenerated with a headline.
+
+Upgrading a site: merge upstream. Existing covers keep working; regenerate them with `--title`, `--tag` and a layout per article type if you want the new look. No vars, secrets or migrations.
+
+调整：文章封面加标题、分类标签和版式。`scripts/article-cover.mjs` 改为用 Playwright 的 Chromium（e2e 已经装好）渲染 HTML 再截图，不再拼 ffmpeg 滤镜。新增选项：`--title`（标题）、`--tag`（分类标签）、`--note`（一行小字）、`--labels "A|B"`、`--accent`，以及 `--layout`：`row`（1–3 帧扇形排开，默认）、`before-after`（照片 → 成片，中间箭头）、`vs`（左右分屏）、`hero`（一帧大图）、`grid`（2–4 帧）、`full`（一张横图铺满，如插画）。品牌名取运行目录的 `site.brandName`。不带 `--title` 时只排画面。截视频帧仍需要 ffmpeg。模板示例封面已按新样式重新生成。站点升级：合并 upstream；已有封面照常可用，想换新样式就按文章类型选版式，加 `--title`、`--tag` 重新生成。没有新增 vars、密钥和迁移。
+
 ## 2026-10-26
 
 ### Added: optional article covers

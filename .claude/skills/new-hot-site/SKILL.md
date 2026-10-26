@@ -72,7 +72,7 @@ node scripts/new-site.mjs --keyword "<关键词>" --domain <域名> --keywords "
 - 没有：运行 `node scripts/generate-placeholder-media.mjs`（需要 ffmpeg）生成原创占位素材，文件名按新的默认风格 `id`（`styles[0].id`）和品牌名生成。然后在 `site.ts` 的 `styles` 旁写 `// TODO(site): 换成真实的趋势源视频（seed/templates/）`、在 `styles[].examples` 旁写 `// TODO(site): 换成授权的展示素材并写 credit`。
 - 没有 ffmpeg：把 `seed/templates/` 里的旧文件按新文件名复制一份，同样写上面两条 TODO。
 - 最后 `git rm` 掉 `seed/templates/` 里旧风格 `id` 的源视频，只留 `site.styles[].sources` 和 `site.styles[].scene.frame` 用到的文件。
-- 文章封面：`public/demo/` 定稿后，给每篇文章用 `node scripts/article-cover.mjs public/guides/<slug>.jpg <视频>@<秒> …` 截 1–3 帧生成封面，按文章主题挑画面（原片对比成片、不同人物或时刻），在 `site.articles[].cover` 填 `/guides/<slug>.jpg`。删掉模板带来的、已不用的旧封面文件。
+- 文章封面：`public/demo/` 定稿后，给每篇文章用 `node scripts/article-cover.mjs public/guides/<slug>.jpg --tag <分类> --title "<短标题>" [--layout …] <视频>@<秒> | <图片> …` 生成封面（选项见脚本开头）。按文章类型换版式，别全站一种：教程用 `before-after`（示例照片 → 对应成片），对比用 `vs`，规格、价格、排错用 `hero`，灵感用 `grid`；没有合适画面的主题（如穿搭）可以用 `full` 铺一张不含人物的配图。画面和标题不能暗示站点不支持的功能（如文章说不支持宠物，封面就不要放宠物）。在 `site.articles[].cover` 填 `/guides/<slug>.jpg`。删掉模板带来的、已不用的旧封面文件。
 - 不要从网上下载趋势视频当素材，版权和肖像权都过不去。
 
 ### 6. wrangler vars 先不动
