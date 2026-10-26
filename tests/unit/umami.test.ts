@@ -83,7 +83,7 @@ describe('handleUmamiProxy', () => {
     expect(JSON.parse((fetchMock.mock.calls[0]?.[1] as RequestInit).body as string)).toEqual({ payload: { website: 'w' } })
   })
 
-  it('send：非 production（本地 dev、e2e、staging）和后台页面不转发', async () => {
+  it('非 production（本地 dev、e2e、staging）：send 不转发、script 给空 JS；后台页面不转发', async () => {
     const fetchMock = mockFetch(() => new Response('ok'))
     for (const APP_ENV of ['development', 'staging']) {
       const response = await handleUmamiProxy(send({ payload: { website: 'w', url: '/' } }), { ...env, APP_ENV } as Env)
@@ -94,6 +94,12 @@ describe('handleUmamiProxy', () => {
       const response = await handleUmamiProxy(send({ payload: { website: 'w', url } }), env)
       expect(response?.status, url).toBe(200)
       expect(await response?.json(), url).toEqual({})
+    }
+    // 脚本返回空 JS（不是 502），页面控制台不报错
+    for (const APP_ENV of ['development', 'staging']) {
+      const script = await handleUmamiProxy(new Request('https://site.test/s/script.js'), { ...env, APP_ENV } as Env)
+      expect(script?.status, APP_ENV).toBe(200)
+      expect(script?.headers.get('Content-Type'), APP_ENV).toContain('javascript')
     }
     expect(fetchMock).not.toHaveBeenCalled()
     await handleUmamiProxy(send({ payload: { website: 'w', url: 'https://site.test/administrator-guide' } }), env)

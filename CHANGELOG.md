@@ -6,6 +6,14 @@ Notable changes to the template. Derived sites pick them up with `git merge` fro
 
 ## 2026-10-26
 
+### Fixed: `/s/script.js` returns an empty script outside production
+
+- With Umami configured, local dev, e2e and staging no longer fetch the tracker from the instance: `/s/script.js` returns an empty JavaScript file when `APP_ENV` is not `production`. Before, a local Worker that could not reach the instance answered 502 `text/plain`, the browser logged errors on every page, and the "home page hydrates without errors" e2e case failed. Nothing was reported from these environments either way.
+
+Upgrading a site: merge upstream. Nothing to configure; production is unchanged.
+
+修复：非 production 环境的 `/s/script.js` 返回空脚本。配了 Umami 的站点，本地 dev、e2e 和 staging 不再去实例取跟踪脚本，`APP_ENV` 不是 `production` 时直接返回一个空 JS。之前本地 Worker 连不上实例时返回 502 和 `text/plain`，每个页面控制台报错，e2e“首页水合无报错”失败；这些环境本来就不上报。站点升级：合并 upstream，无需配置，生产不变。
+
 ### Added: a second theme (`acid`), a corner consent card and "Ask AI" in the footer
 
 - **`site.theme`** (`src/config/site.ts`): `'classic'` (the current look) or `'acid'` (zinc black / cream, lime accent, bold sans headings, small radii). It is set on `<html data-skin>`; light / dark still follows the visitor. Colors, the heading font, radii, the primary button, the footer and the logo tile are CSS variables in `src/styles.css`; themes are listed in `src/lib/theme.ts`. The footer, language links and logo no longer hard-code colors.

@@ -18,8 +18,16 @@ export function handleUmamiProxy(request: Request, env: Env): Promise<Response> 
   if (!allowed) return Promise.resolve(text('Method not allowed', 405, { Allow: isScript ? 'GET, HEAD' : 'POST' }))
   const origin = (env.UMAMI_ORIGIN ?? '').trim().replace(/\/+$/, '')
   if (!origin) return Promise.resolve(text('Not found', 404))
+  // 非 production 不上报（见 proxySend），脚本也不去取：本地 workerd 可能连不上实例，502 会让页面控制台报错
+  if (isScript && env.APP_ENV !== 'production') return Promise.resolve(emptyScript())
   return isScript ? proxyScript(origin) : proxySend(request, origin, env)
 }
+
+const emptyScript = () =>
+  new Response('/* Umami is disabled outside production */\n', {
+    status: 200,
+    headers: { 'Content-Type': 'application/javascript; charset=utf-8', 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex' },
+  })
 
 const json = (body: unknown) =>
   new Response(JSON.stringify(body), { status: 200, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } })
