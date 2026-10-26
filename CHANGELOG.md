@@ -6,6 +6,15 @@ Notable changes to the template. Derived sites pick them up with `git merge` fro
 
 ## 2026-10-26
 
+### Fixed: Umami only counts production visitors
+
+- `/s/api/send` now forwards events only when `APP_ENV` is `production`; local dev, e2e and staging get `{"disabled":true}` (the tracker stops for that page) and nothing reaches the instance. Sites share their `vars` with local dev, so before this a local run or e2e pass with Umami enabled reported to the live instance.
+- Events whose `url` is under `/admin` are dropped (`{}`), so admin views, with order and user IDs in their paths, no longer show up in analytics.
+
+Upgrading a site: merge upstream and deploy. Nothing to configure. Events already recorded from `127.0.0.1` or `/admin` stay in Umami; delete them there if needed.
+
+修复：Umami 只统计正式环境。`/s/api/send` 只在 `APP_ENV` 为 `production` 时转发，本地 dev、e2e、staging 返回 `{"disabled":true}`（跟踪脚本在本页停止上报），不会到达实例；站点的 `vars` 本地和生产共用，之前开了 Umami 的站点本地跑 dev 或 e2e 会报进正式实例。`url` 在 `/admin` 下的事件直接丢弃（返回 `{}`），后台页面（路径里有订单号、用户 ID）不再进统计。站点升级：合并 upstream 后部署，无需配置。已经记录的 `127.0.0.1` 或 `/admin` 数据留在 Umami 里，需要时在那边删除。
+
 ### Added: optional Umami analytics through a same-origin proxy
 
 - **`analytics.umamiWebsiteId`** (`src/config/site.ts`, empty by default): when set, every page loads `/s/script.js` (with `data-website-id`). Umami sets no cookies, so the consent banner does not gate it. The privacy policy adapts (the "no third-party analytics" sentence is dropped, a cookie-free Umami sentence is added, and the service-provider sentence mentions analytics). `new-site.mjs` clears the ID for a new site.

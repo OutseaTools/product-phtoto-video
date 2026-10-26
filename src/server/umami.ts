@@ -18,8 +18,11 @@ export function handleUmamiProxy(request: Request, env: Env): Promise<Response> 
   if (!allowed) return Promise.resolve(text('Method not allowed', 405, { Allow: isScript ? 'GET, HEAD' : 'POST' }))
   const origin = (env.UMAMI_ORIGIN ?? '').trim().replace(/\/+$/, '')
   if (!origin) return Promise.resolve(text('Not found', 404))
-  return isScript ? proxyScript(origin) : proxySend(request, origin)
+  return isScript ? proxyScript(origin) : proxySend(request, origin, env)
 }
+
+const json = (body: unknown) =>
+  new Response(JSON.stringify(body), { status: 200, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } })
 
 async function proxyScript(origin: string): Promise<Response> {
   try {
@@ -47,7 +50,7 @@ async function proxyScript(origin: string): Promise<Response> {
   }
 }
 
-async function proxySend(request: Request, origin: string): Promise<Response> {
+async function proxySend(request: Request, origin: string, env: Env): Promise<Response> {
   const raw = await request.text()
   if (new TextEncoder().encode(raw).byteLength > MAX_BODY_BYTES) return text('Payload too large', 413)
   let body: unknown
@@ -58,6 +61,11 @@ async function proxySend(request: Request, origin: string): Promise<Response> {
   }
   const payload = isObject(body) ? body.payload : undefined
   if (!isObject(body) || !isObject(payload)) return text('Invalid payload', 400)
+  // 只统计正式环境：本地 dev、e2e 和 staging 的 vars 与生产相同，不拦会把测试流量报进正式实例。
+  // 返回 disabled 让跟踪脚本在本页停止上报
+  if (env.APP_ENV !== 'production') return json({ disabled: true })
+  // 后台页面不统计：路径里有订单号、用户 ID，也不是访客流量
+  if (isAdminUrl(payload.url)) return json({})
   // Umami 看到 payload.ip 会用它查国家、计算访客；不写则会用 Worker 的出口 IP。本地开发没有这个头。
   // 带 payload.ip 时 Umami 跳过请求头里的地区信息、改查 GeoLite2 库，实例没有库会返回 500（Vercel 上要设 BUILD_GEO=1）。
   // 不能改用 CF-IPCountry 请求头：Worker 发往非 Cloudflare 源站时它会被删掉，Vercel 的 x-vercel-ip-country 又只反映 Worker 出口
@@ -85,6 +93,16 @@ async function proxySend(request: Request, origin: string): Promise<Response> {
     // 日志和响应都不带 UMAMI_ORIGIN
     console.warn('[umami] send upstream failed', error instanceof Error ? error.name : 'unknown')
     return text('Bad gateway', 502)
+  }
+}
+
+function isAdminUrl(url: unknown) {
+  if (typeof url !== 'string') return false
+  try {
+    const { pathname } = new URL(url, 'https://site.invalid')
+    return pathname === '/admin' || pathname.startsWith('/admin/')
+  } catch {
+    return false
   }
 }
 

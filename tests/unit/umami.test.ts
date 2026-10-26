@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { handleUmamiProxy } from '#/server/umami'
 
 const ORIGIN = 'https://umami.example.com'
-const env = { UMAMI_ORIGIN: ORIGIN } as Env
+const env = { UMAMI_ORIGIN: ORIGIN, APP_ENV: 'production' } as Env
 const send = (body: unknown, headers: Record<string, string> = {}) =>
   new Request('https://site.test/s/api/send', {
     method: 'POST',
@@ -81,6 +81,23 @@ describe('handleUmamiProxy', () => {
     const fetchMock = mockFetch(() => new Response('ok'))
     await handleUmamiProxy(send({ payload: { website: 'w' } }), env)
     expect(JSON.parse((fetchMock.mock.calls[0]?.[1] as RequestInit).body as string)).toEqual({ payload: { website: 'w' } })
+  })
+
+  it('send：非 production（本地 dev、e2e、staging）和后台页面不转发', async () => {
+    const fetchMock = mockFetch(() => new Response('ok'))
+    for (const APP_ENV of ['development', 'staging']) {
+      const response = await handleUmamiProxy(send({ payload: { website: 'w', url: '/' } }), { ...env, APP_ENV } as Env)
+      expect(response?.status, APP_ENV).toBe(200)
+      expect(await response?.json(), APP_ENV).toEqual({ disabled: true })
+    }
+    for (const url of ['https://site.test/admin', 'https://site.test/admin/orders/ord_1?x=1', '/admin/users']) {
+      const response = await handleUmamiProxy(send({ payload: { website: 'w', url } }), env)
+      expect(response?.status, url).toBe(200)
+      expect(await response?.json(), url).toEqual({})
+    }
+    expect(fetchMock).not.toHaveBeenCalled()
+    await handleUmamiProxy(send({ payload: { website: 'w', url: 'https://site.test/administrator-guide' } }), env)
+    expect(fetchMock).toHaveBeenCalledTimes(1)
   })
 
   it('send：超过 16 KB 返回 413，不发请求', async () => {
