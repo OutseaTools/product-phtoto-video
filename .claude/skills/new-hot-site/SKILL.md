@@ -58,6 +58,7 @@ node scripts/new-site.mjs --keyword "<关键词>" --domain <域名> --keywords "
 - `packages`：积分包的积分数和价格。`id` 不要改，支付商商品映射（`*_PRODUCTS`）按 id 对应。
 - `durations`：时长档位和积分。源视频文件名在 `styles[].sources`（键 = 档位 id，文件名跟着风格 `id`），改了档位要同步每个风格的 `sources` 和 `seed/templates/` 的文件。
 - `video.falModel`、`video.costCentsPerVideoSecond`、`video.sourceFps`：换模型时三个一起核对，成本用来算毛利和告警。
+- `theme`：简介指定了外观就选 `classic` 或 `acid`（见 `src/lib/theme.ts`），否则保留模板值。
 - `signupBonusCredits`、`signupBonusValidDays`（赠送积分有效期，0 = 永不过期）、`retention`、`takedownSlaHours`、`trendPlatform`。
 - `examples.*.credit`：换成真实素材后写原作者；还是占位素材就保留 “Demo clip”。
 

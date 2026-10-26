@@ -227,6 +227,9 @@ SMOKE_BASE_URL=https://video-template-staging.<子域名>.workers.dev SMOKE_EXPE
 
 ## 关键设计
 
+- **主题**：`site.theme` 选整站外观，写在 `<html data-skin>` 上，访客仍可切换亮色 / 暗色。`classic`（默认）：暖白纸张、品红强调、衬线标题、胶囊按钮；`acid`：锌黑 / 奶白、黄绿强调、无衬线粗标题、小圆角按钮。颜色、字体、圆角都是 `src/styles.css` 里的 CSS 变量，新增主题时在 `src/lib/theme.ts` 登记并写亮色、暗色两组变量（`tests/unit/theme.test.ts` 核对）。
+  - 统计同意卡片（只在填了 `ga4Id` 时出现）在右下角，不挡正文；“接受”和“拒绝”同样大小，× 只收起本次，不记录选择。
+  - 页脚“问问 AI”：链接 `/llms.txt`，并列出 ChatGPT、Claude、Perplexity、Gemini（Google AI Mode）、Grok 按钮，带一段预填提问（`footer.askAiPrompt`，含首页和 `llms.txt` 地址）在新标签打开，链接 `nofollow`。
 - **积分**：每笔变动都写流水，`idempotency_key` 唯一（`order:<id>`、`order_refund:<id>`、`generation:<id>` 等），与批次、余额更新在同一个 D1 batch 里，重复入账会整体回滚。
   - 批次：每次入账是一个批次（`credit_grants`），可以带到期时间。买的积分永不过期；注册赠送按运营设置里的有效期到期（默认 `site.signupBonusValidDays`，0 = 永不过期）；后台补发时可填有效期（1–3650 天）。
   - 扣费先扣最早到期的批次，永不过期的最后扣，从哪些批次扣了多少记在 `credit_allocations`。分配在 SQL 里完成，余额不足时整个 batch 回滚，并发扣费不会超扣。生成失败按明细原路退回；退款回收时先扣该订单买的批次。

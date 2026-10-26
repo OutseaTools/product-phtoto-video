@@ -6,6 +6,16 @@ Notable changes to the template. Derived sites pick them up with `git merge` fro
 
 ## 2026-10-26
 
+### Added: a second theme (`acid`), a corner consent card and "Ask AI" in the footer
+
+- **`site.theme`** (`src/config/site.ts`): `'classic'` (the current look) or `'acid'` (zinc black / cream, lime accent, bold sans headings, small radii). It is set on `<html data-skin>`; light / dark still follows the visitor. Colors, the heading font, radii, the primary button, the footer and the logo tile are CSS variables in `src/styles.css`; themes are listed in `src/lib/theme.ts`. The footer, language links and logo no longer hard-code colors.
+- The consent banner is now a small card in the bottom-right corner (full width at the bottom on phones) with a × that hides it for this page view without saving a choice. "Accept" and "Reject" stay the same size.
+- The footer gets an "AI & agent docs" row: a link to `/llms.txt` and ChatGPT, Claude, Perplexity, Gemini (Google AI Mode) and Grok buttons that open a pre-filled question about the site in a new tab (`rel="noopener nofollow"`).
+
+Upgrading a site: merge upstream. `src/config/site.ts` needs `theme` (keep `'classic' as ThemeName` for the current look; the import is `import type { ThemeName } from '#/lib/theme'`). `src/content/en.ts` and `zh.ts` need `consent.dismiss` and `footer.agentDocs`, `footer.askAi`, `footer.askAiLabel`, `footer.askAiPrompt` (copy them from the template; `npm run typecheck` lists what is missing). The shorter `consent.body` is optional. No vars, secrets or migrations.
+
+新增：第二套主题 `acid`、右下角同意卡片和页脚“问问 AI”。`site.theme` 可选 `'classic'`（现有外观）或 `'acid'`（锌黑 / 奶白、黄绿强调、无衬线粗标题、小圆角），写在 `<html data-skin>` 上，亮色 / 暗色仍由访客切换；颜色、标题字体、圆角、主按钮、页脚和 Logo 底色都是 `src/styles.css` 里的 CSS 变量，主题列表在 `src/lib/theme.ts`；页脚、语言链接和 Logo 不再写死颜色。同意横幅改成右下角小卡片（手机上贴底铺满），× 只收起本次、不记录选择，“接受”和“拒绝”仍同样大小。页脚新增“AI 与 Agent 文档”一行：`/llms.txt` 链接，以及 ChatGPT、Claude、Perplexity、Gemini（Google AI Mode）、Grok 按钮，在新标签打开一段预填的提问（`rel="noopener nofollow"`）。站点升级：合并 upstream；`src/config/site.ts` 要有 `theme`（保持现有外观填 `'classic' as ThemeName`，并加 `import type { ThemeName } from '#/lib/theme'`）；`src/content/en.ts`、`zh.ts` 要补 `consent.dismiss` 和 `footer.agentDocs`、`footer.askAi`、`footer.askAiLabel`、`footer.askAiPrompt`（从模板复制，缺哪个 `npm run typecheck` 会列出），缩短后的 `consent.body` 可选。没有新增 vars、密钥和迁移。
+
 ### Fixed: Umami only counts production visitors
 
 - `/s/api/send` now forwards events only when `APP_ENV` is `production`; local dev, e2e and staging get `{"disabled":true}` (the tracker stops for that page) and nothing reaches the instance. Sites share their `vars` with local dev, so before this a local run or e2e pass with Umami enabled reported to the live instance.

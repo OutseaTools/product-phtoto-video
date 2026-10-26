@@ -202,6 +202,14 @@
 - 测试：`tests/unit/pricing.test.ts`（`packageMakes`、`cheapestPackageCovering`）、`tests/unit/llms.test.ts`、`tests/unit/alerts.test.ts`（余额阈值、聊天群去重）；e2e 2 个（生成器就地购买到积分到账；暂停收款时就地购买禁用）。
 - 未验证：线上聊天群实际收到告警（飞书关键词）；余额告警在真实 yir 账户上触发。
 
+**#37 第二套主题、右下角同意卡片、页脚“问问 AI”**（2026-10-26，参考竞品 rumpelstiltskinai.dance 的外观）
+
+- 主题：`site.theme` 写到 `<html data-skin>`；颜色、标题字体、圆角、主按钮、页脚、Logo 底色都改成 CSS 变量，原样式为 `classic`，新增 `acid`（锌黑 / 奶白、黄绿强调、无衬线粗标题、小圆角）。页脚和语言链接、Logo 去掉写死的颜色。
+- 同意横幅改成右下角小卡片（手机上贴底），加 × 只收起本次；文案缩短。“接受”和“拒绝”仍同样大小。
+- 页脚“问问 AI”：`/llms.txt` 链接和 5 个带预填提问的 AI 按钮（`src/lib/ask-ai.ts`，图标来自 simple-icons CC0 和 @lobehub/icons MIT），`nofollow`。
+- 测试：`tests/unit/theme.test.ts`；e2e `seo.spec.ts` 1 个（问问 AI 链接、中文提问、llms.txt）。acid 和 classic 的亮色、暗色、手机截图在 `.tmp/theme-acid/`。
+- 未验证：同意卡片没有 e2e（模板默认不填 `ga4Id`），只用临时 `ga4Id` 在浏览器里看过显示和 ×；各家 AI 是否按预填提问自动提交、Gemini 预填走的是 Google AI Mode。
+
 **#6 积分分批次与过期**（2026-10-21）
 
 - 迁移 `0009_credit_grants.sql`：批次表 `credit_grants`、扣减明细 `credit_allocations`、断言表 `credit_guard`；现有余额转成永不过期的 `legacy` 批次。

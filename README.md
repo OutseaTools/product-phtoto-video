@@ -228,6 +228,9 @@ SMOKE_BASE_URL=https://video-template-staging.<subdomain>.workers.dev SMOKE_EXPE
 
 ## Design notes
 
+- **Themes**: `site.theme` picks the site's look and is set on `<html data-skin>`; visitors still switch light / dark. `classic` (default): warm paper, magenta accent, serif headings, pill buttons. `acid`: zinc black / cream, lime accent, bold sans headings, small-radius buttons. Colors, fonts and radii are CSS variables in `src/styles.css`; to add a theme, register it in `src/lib/theme.ts` and define both a light and a dark set (`tests/unit/theme.test.ts` checks).
+  - The analytics consent card (only with `ga4Id` set) sits in the bottom-right corner and doesn't cover content; "Accept" and "Reject" are the same size, and × only hides it for this page view without recording a choice.
+  - Footer "Ask AI": links `/llms.txt` and shows ChatGPT, Claude, Perplexity, Gemini (Google AI Mode) and Grok buttons that open a pre-filled question (`footer.askAiPrompt`, with the home page and `llms.txt` URLs) in a new tab, with `nofollow`.
 - **Credits**: every change writes a ledger entry with a unique `idempotency_key` (`order:<id>`, `order_refund:<id>`, `generation:<id>`, …) in the same D1 batch as the grant and balance updates, so a duplicate credit rolls back as a whole.
   - Grants: every credit is a grant (`credit_grants`) that may expire. Purchased credits never expire; the sign-up bonus expires after the validity in runtime settings (default `site.signupBonusValidDays`, 0 = never); admins can set a validity of 1–3650 days when granting credits.
   - Spending takes the grant that expires soonest first and never-expiring grants last, recording how much came from each grant in `credit_allocations`. Allocation runs in SQL: insufficient credits roll back the whole batch, and concurrent spends can't overdraw. A failed render is refunded to the same grants; a refund clawback takes the order's own grant first.

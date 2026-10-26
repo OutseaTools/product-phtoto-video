@@ -273,16 +273,23 @@ export function en(s: S) {
       refund: 'Refund Policy',
       report: 'Report content',
       rights: `© ${new Date().getFullYear()} ${b}. All rights reserved.`,
+      // 页脚“问问 AI”：llms.txt 链接 + 几个带预填提问的 AI 按钮
+      agentDocs: 'AI & agent docs',
+      askAi: `See what ChatGPT, Claude, Perplexity, Gemini or Grok say about ${b}.`,
+      askAiLabel: (ai: string) => `Ask ${ai} about ${b}`,
+      askAiPrompt: (url: string, llms: string) => `What is ${b} (${url})? Summarize what it does, how pricing works and who it is for. Site summary for AI: ${llms}`,
     },
     support: { label: 'Help & support' },
     // 统计同意横幅：只在配置了 GA4 时出现
     consent: {
       title: 'Analytics cookies',
-      body: 'We’d like to use Google Analytics cookies, plus a first-party cookie that records which link brought you here, to understand how the site is used and which channels work. They are only set if you accept, and you can change your choice at any time under “Cookie settings” in the footer.',
+      body: 'We use Google Analytics and a first-party referral cookie to see how the site is used. Nothing is set unless you accept; change it any time under “Cookie settings”.',
       learnMore: 'Privacy Policy',
       accept: 'Accept',
       reject: 'Reject',
       settings: 'Cookie settings',
+      // × 只收起本次，不记录选择
+      dismiss: 'Dismiss',
     },
     signIn: {
       title: `Sign in to ${b}`,

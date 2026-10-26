@@ -10,6 +10,7 @@ import { ga4BootstrapScript } from '#/lib/consent'
 import { installErrorReporting, reportClientError } from '#/lib/error-report'
 import { htmlLang, loadContent, localeFromPathname, useContent } from '#/lib/i18n'
 import { SessionProvider } from '#/lib/session'
+import { THEME_COLOR } from '#/lib/theme'
 import css from '../styles.css?url'
 
 // 首屏前设置主题，避免闪烁
@@ -43,7 +44,7 @@ export const Route = createRootRoute({
       { charSet: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
       { title: site.brandName },
-      { name: 'theme-color', content: '#f7f4ee' },
+      { name: 'theme-color', content: THEME_COLOR[site.theme] },
       { property: 'og:site_name', content: site.brandName },
       { property: 'og:type', content: 'website' },
       { property: 'og:image', content: `https://${site.domain}${site.ogImage}` },
@@ -70,7 +71,7 @@ function RootDocument({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname })
   useEffect(installErrorReporting, [])
   return (
-    <html lang={htmlLang(localeFromPathname(pathname))} suppressHydrationWarning>
+    <html lang={htmlLang(localeFromPathname(pathname))} data-skin={site.theme} suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>

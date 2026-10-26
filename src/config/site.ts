@@ -1,6 +1,8 @@
 // 上新词时主要改这个文件：关键词、品牌、模板视频、时长档位、积分包、文章 slug。
 // 文案在 src/content/<locale>.ts，通过 {keyword} 等变量自动套用。
 
+import type { ThemeName } from '#/lib/theme'
+
 export const LOCALES = ['en', 'zh'] as const
 export type Locale = (typeof LOCALES)[number]
 export const DEFAULT_LOCALE: Locale = 'en'
@@ -21,6 +23,8 @@ export const site = {
   // 社媒平台名称（用于 “Viral on TikTok” 之类标签）
   trendPlatform: 'TikTok',
   ogImage: '/og.png',
+  // 页面主题，可选值和效果见 src/lib/theme.ts
+  theme: 'classic' as ThemeName,
 
   // 生成模板的共用参数：provider 输出时长 = 源视频时长，所以每种风格的每个时长档位各有一段剪好的源视频（见 styles[].sources）。
   template: {

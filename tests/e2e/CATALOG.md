@@ -213,6 +213,7 @@ e2e 跑在本地 dev server 上，支付、视频、审核服务商都是 mock�
 - `seo.spec.ts` › `中英文首页水合无报错，H1/标题与 SSR 一致`
 - `seo.spec.ts` › `客户端路由切换后 head 同步更新（canonical 不残留上一页）`
 - `seo.spec.ts` › `语言链接：SSR 中可抓取，点击后保留路径、查询参数和 hash`
+- `seo.spec.ts` › `页脚“问问 AI”：SSR 中带 nofollow 链接，中文站用中文提问并附 llms.txt，llms.txt 可访问`
 
 ## P1 运营与数据管理
 

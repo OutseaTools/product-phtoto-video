@@ -102,3 +102,23 @@ test('语言链接：SSR 中可抓取，点击后保留路径、查询参数和 
   await expect(page.locator('html')).toHaveAttribute('lang', 'zh-CN')
   await expect(page.locator('h1')).toHaveText(zh.articles.howTo.title)
 })
+
+test('页脚“问问 AI”：SSR 中带 nofollow 链接，中文站用中文提问并附 llms.txt，llms.txt 可访问', async ({ page, request }) => {
+  const llms = await request.get('/llms.txt')
+  expect(llms.status()).toBe(200)
+  expect(await llms.text()).toContain(site.brandName)
+
+  // 不执行 JS 也能看到链接，且不传权重
+  const html = await (await request.get('/zh')).text()
+  expect(html).toMatch(/<a href="https:\/\/claude\.ai\/new\?q=[^"]+" target="_blank" rel="noopener nofollow"/)
+
+  await page.goto('/zh')
+  const links = page.getByTestId('ask-ai').getByRole('link')
+  await expect(links).toHaveCount(5)
+  const href = await page.getByRole('link', { name: zh.footer.askAiLabel('Claude') }).getAttribute('href')
+  const prompt = new URL(href!).searchParams.get('q')!
+  // 提问来自中文文案，带首页和 llms.txt 的绝对地址
+  const origin = `https://${site.domain}`
+  expect(prompt).toBe(zh.footer.askAiPrompt(origin, `${origin}/llms.txt`))
+  expect(prompt).not.toBe(en.footer.askAiPrompt(origin, `${origin}/llms.txt`))
+})
