@@ -6,6 +6,16 @@ Notable changes to the template. Derived sites pick them up with `git merge` fro
 
 ## 2026-10-26
 
+### Added: optional article covers
+
+- **`cover`** on `site.articles[]` (`src/config/site.ts`): a 1200×630 image under `public/`. When set it shows on the `/guides` card (and related-guide cards) and at the top of the article, and becomes that article's `og:image` / `twitter:image` and Article JSON-LD `image`. Without it nothing changes. The template's `trend` article ships with `/guides/neon-shuffle-ai-trend.jpg`.
+- **`scripts/article-cover.mjs`** builds a cover from 1–3 frames of the site's own videos on a blurred background: `node scripts/article-cover.mjs public/guides/<slug>.jpg public/demo/original.mp4@1 public/demo/ai1.mp4@2` (needs ffmpeg).
+- `npm run seo:check` no longer counts `alt=""` (decorative images) as a missing alt.
+
+Upgrading a site: merge upstream. Covers are optional; to add them, generate one per article and set `cover: '/guides/<slug>.jpg'`. If the merge brings in `public/guides/neon-shuffle-ai-trend.jpg` and no article uses it, delete it. No vars, secrets or migrations.
+
+新增：可选的文章封面。`site.articles[]` 的 `cover` 是 `public/` 下 1200×630 的图片，填了就显示在 `/guides` 卡片（含“相关指南”卡片）和文章顶部，并用作该文章的 `og:image` / `twitter:image` 和 Article 结构化数据的 `image`；不填和以前一样。模板的 `trend` 文章带了示例封面 `/guides/neon-shuffle-ai-trend.jpg`。`scripts/article-cover.mjs` 从站点自己的视频截 1–3 帧、铺在模糊背景上生成封面（需要 ffmpeg）。`npm run seo:check` 不再把 `alt=""`（装饰图）算成缺少 alt。站点升级：合并 upstream；封面可选，要加就每篇生成一张并填 `cover: '/guides/<slug>.jpg'`；合并带进来的 `public/guides/neon-shuffle-ai-trend.jpg` 没有文章用就删掉。没有新增 vars、密钥和迁移。
+
 ### Fixed: `/s/script.js` returns an empty script outside production
 
 - With Umami configured, local dev, e2e and staging no longer fetch the tracker from the instance: `/s/script.js` returns an empty JavaScript file when `APP_ENV` is not `production`. Before, a local Worker that could not reach the instance answered 502 `text/plain`, the browser logged errors on every page, and the "home page hydrates without errors" e2e case failed. Nothing was reported from these environments either way.

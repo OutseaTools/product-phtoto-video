@@ -214,6 +214,8 @@ e2e 跑在本地 dev server 上，支付、视频、审核服务商都是 mock�
 - `seo.spec.ts` › `客户端路由切换后 head 同步更新（canonical 不残留上一页）`
 - `seo.spec.ts` › `语言链接：SSR 中可抓取，点击后保留路径、查询参数和 hash`
 - `seo.spec.ts` › `页脚“问问 AI”：SSR 中带 nofollow 链接，中文站用中文提问并附 llms.txt，llms.txt 可访问`
+- `seo.spec.ts` › `文章封面：卡片和文章顶部显示，og:image 与 Article.image 用封面，SPA 切换后不残留；没填的用默认图`
+  - 每个 `cover` 文件都能访问（路径写错即失败）；SSR 只有一个 `og:image` 且宽高声明在它后面；列表 → 文章 → 列表走 SPA 导航后 `og:image` 先换成封面、再恢复默认图。
 
 ## P1 运营与数据管理
 
