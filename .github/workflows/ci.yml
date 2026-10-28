@@ -50,9 +50,10 @@ jobs:
           sed -i "s/^SESSION_SECRET=.*/SESSION_SECRET=$(openssl rand -hex 32)/" .dev.vars
       - run: npm run seed:local
       - run: npm run test:e2e
+      # 报告每份约 170 MB，只在失败时上传并短期保留，避免占满 Actions 存储
       - uses: actions/upload-artifact@v7
-        if: ${{ !cancelled() }}
+        if: ${{ failure() }}
         with:
           name: e2e-report
           path: .tmp/video-template-e2e/
-          retention-days: 14
+          retention-days: 3
